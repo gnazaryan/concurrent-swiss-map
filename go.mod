@@ -1,3 +1,3 @@
-module github.com/mhmtszr/concurrent-swiss-map
+module github.com/gnazaryan/concurrent-swiss-map
 
 go 1.18

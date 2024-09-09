@@ -3,7 +3,7 @@ package main
 import (
 	"hash/fnv"
 
-	csmap "github.com/mhmtszr/concurrent-swiss-map"
+	csmap "github.com/gnazaryan/concurrent-swiss-map"
 )
 
 func main() {

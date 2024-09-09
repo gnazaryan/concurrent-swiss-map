@@ -15,7 +15,7 @@
 package swiss
 
 import (
-	"github.com/mhmtszr/concurrent-swiss-map/maphash"
+	"github.com/gnazaryan/concurrent-swiss-map/maphash"
 )
 
 const (

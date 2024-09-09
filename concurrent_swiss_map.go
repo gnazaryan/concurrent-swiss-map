@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/mhmtszr/concurrent-swiss-map/maphash"
+	"github.com/gnazaryan/concurrent-swiss-map/maphash"
 
-	"github.com/mhmtszr/concurrent-swiss-map/swiss"
+	"github.com/gnazaryan/concurrent-swiss-map/swiss"
 )
 
 type CsMap[K comparable, V any] struct {

@@ -17,9 +17,10 @@
 package swiss
 
 import (
-	"github.com/mhmtszr/concurrent-swiss-map/swiss/simd"
 	"math/bits"
 	_ "unsafe"
+
+	"github.com/gnazaryan/concurrent-swiss-map/swiss/simd"
 )
 
 const (

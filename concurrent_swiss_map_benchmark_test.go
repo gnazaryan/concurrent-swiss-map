@@ -8,7 +8,7 @@ package csmap_test
 //	"sync"
 //	"testing"
 //
-//	"github.com/mhmtszr/concurrent-swiss-map"
+//	"github.com/gnazaryan/concurrent-swiss-map"
 //)
 //
 

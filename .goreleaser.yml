@@ -3,7 +3,7 @@ project_name: concurrent-swiss-map
 release:
   github:
     name: concurrent-swiss-map
-    owner: mhmtszr
+    owner: gnazaryan
 
 before:
   hooks:

@@ -6,10 +6,10 @@ Uses [dolthub/swiss](https://github.com/dolthub/swiss) map implementation under 
 
 ## Installation
 
-Supports 1.18+ Go versions because of Go Generics
+Supports 1.19+ Go versions because of Go Generics
 
 ```
-go get github.com/mhmtszr/concurrent-swiss-map
+go get github.com/gnazaryan/concurrent-swiss-map
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ package main
 import (
 	"hash/fnv"
 
-	csmap "github.com/mhmtszr/concurrent-swiss-map"
+	csmap "github.com/gnazaryan/concurrent-swiss-map"
 )
 
 func main() {

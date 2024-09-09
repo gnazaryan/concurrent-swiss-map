@@ -90,6 +90,18 @@ func (m *CsMap[K, V]) Delete(key K) bool {
 	return shard.items.DeleteWithHash(key, hashShardPair.hash)
 }
 
+func (m *CsMap[K, V]) DeleteRetrieve(key K) V {
+	hashShardPair := m.getShard(key)
+	shard := hashShardPair.shard
+	shard.Lock()
+	defer shard.Unlock()
+	value, ok := shard.items.GetWithHash(key, hashShardPair.hash)
+	if ok {
+		shard.items.DeleteWithHash(key, hashShardPair.hash)
+	}
+	return value
+}
+
 func (m *CsMap[K, V]) DeleteIf(key K, condition func(value V) bool) bool {
 	hashShardPair := m.getShard(key)
 	shard := hashShardPair.shard

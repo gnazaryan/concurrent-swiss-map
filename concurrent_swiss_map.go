@@ -206,6 +206,18 @@ func (m *CsMap[K, V]) Range(f func(key K, value V) (stop bool)) {
 	listenCompleted.Wait()
 }
 
+// Range If the callback function returns true iteration will stop.
+func (m *CsMap[K, V]) RangeDelete(f func(key K, value V) (stop bool)) {
+	ch := make(chan Tuple[K, V], m.Count())
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	listenCompleted := m.listenDelete(f, ch)
+	m.produceDelete(ctx, ch)
+	listenCompleted.Wait()
+}
+
 func (m *CsMap[K, V]) MarshalJSON() ([]byte, error) {
 	tmp := make(map[K]V, m.Count())
 	m.Range(func(key K, value V) (stop bool) {
@@ -256,6 +268,52 @@ func (m *CsMap[K, V]) produce(ctx context.Context, ch chan Tuple[K, V]) {
 }
 
 func (m *CsMap[K, V]) listen(f func(key K, value V) (stop bool), ch chan Tuple[K, V]) *sync.WaitGroup {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for t := range ch {
+			if stop := f(t.Key, t.Val); stop {
+				return
+			}
+		}
+	}()
+	return &wg
+}
+
+func (m *CsMap[K, V]) produceDelete(ctx context.Context, ch chan Tuple[K, V]) {
+	var wg sync.WaitGroup
+	wg.Add(len(m.shards))
+	for i := range m.shards {
+		go func(i int) {
+			defer wg.Done()
+
+			shard := m.shards[i]
+			shard.Lock()
+			var keys []K = make([]K, 0)
+			shard.items.Iter(func(k K, v V) (stop bool) {
+				keys = append(keys, k)
+				select {
+				case <-ctx.Done():
+					return true
+				default:
+					ch <- Tuple[K, V]{Key: k, Val: v}
+				}
+				return false
+			})
+			for _, key := range keys {
+				shard.items.DeleteWithHash(key, m.hasher(key))
+			}
+			shard.Unlock()
+		}(i)
+	}
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+}
+
+func (m *CsMap[K, V]) listenDelete(f func(key K, value V) (stop bool), ch chan Tuple[K, V]) *sync.WaitGroup {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {

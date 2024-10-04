@@ -122,6 +122,16 @@ func (m *CsMap[K, V]) Load(key K) (V, bool) {
 	return shard.items.GetWithHash(key, hashShardPair.hash)
 }
 
+func (m *CsMap[K, V]) LoadLocked(key K, loader func(value V)) bool {
+	hashShardPair := m.getShard(key)
+	shard := hashShardPair.shard
+	shard.RLock()
+	defer shard.RUnlock()
+	v, ok := shard.items.GetWithHash(key, hashShardPair.hash)
+	loader(v)
+	return ok
+}
+
 func (m *CsMap[K, V]) Has(key K) bool {
 	hashShardPair := m.getShard(key)
 	shard := hashShardPair.shard

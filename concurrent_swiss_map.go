@@ -79,7 +79,7 @@ func (m *CsMap[K, V]) StoreCompute(key K, compute func(value V) V) V {
 	shard.Lock()
 	value, _ := shard.items.GetWithHash(key, hashShardPair.hash)
 	computeResult := compute(value)
-	shard.items.PutWithHash(key, compute(value), hashShardPair.hash)
+	shard.items.PutWithHash(key, computeResult, hashShardPair.hash)
 	shard.Unlock()
 	return computeResult
 }

@@ -3,6 +3,7 @@ package csmap
 import (
 	"context"
 	"encoding/json"
+	"reflect"
 	"sync"
 
 	"github.com/gnazaryan/concurrent-swiss-map/maphash"
@@ -71,6 +72,25 @@ func (m *CsMap[K, V]) Store(key K, value V) {
 	shard.Lock()
 	shard.items.PutWithHash(key, value, hashShardPair.hash)
 	shard.Unlock()
+}
+
+func (m *CsMap[K, V]) StoreComputeSinglton(key K, compute func(value V) V) V {
+	hashShardPair := m.getShard(key)
+	shard := hashShardPair.shard
+	shard.RLock()
+	value, _ := shard.items.GetWithHash(key, hashShardPair.hash)
+	shard.RUnlock()
+	if reflect.ValueOf(value).IsZero() {
+		shard.Lock()
+		value, _ = shard.items.GetWithHash(key, hashShardPair.hash)
+		if reflect.ValueOf(value).IsZero() {
+			value = compute(value)
+			shard.items.PutWithHash(key, value, hashShardPair.hash)
+		}
+		shard.Unlock()
+	}
+
+	return value
 }
 
 func (m *CsMap[K, V]) StoreCompute(key K, compute func(value V) V) V {
